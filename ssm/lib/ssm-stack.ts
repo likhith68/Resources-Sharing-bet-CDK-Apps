@@ -10,7 +10,7 @@ export class SsmStack extends cdk.Stack {
     // Create a basic SSM Parameter Store parameter
     const demoSSM = new ssm.StringParameter(this, 'demoSsmLID', {
       parameterName: '/vpc/NetworkVPC',
-      stringValue: 'vpc-08416406807c76ea7'
+      stringValue: 'vpc-0c25bcf7b2e187421'
     });
   }
 }

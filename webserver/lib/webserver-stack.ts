@@ -4,6 +4,7 @@ import * as ssm from 'aws-cdk-lib/aws-ssm';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as iam from 'aws-cdk-lib/aws-iam';
 
 export class WebserverStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -12,6 +13,10 @@ export class WebserverStack extends cdk.Stack {
     // Use the VPC ID from SSm Parameter Store
     const vpcId = ssm.StringParameter.valueFromLookup(this, '/vpc/NetworkVPC');
     const vpcFromSSM = ec2.Vpc.fromLookup(this, 'VPCPickedFromSSM', { vpcId:vpcId });
+
+
+    // Import the IAM Role ARN from the Security Stack
+    const importedRoleArn = iam.Role.fromRoleArn(this, 'ImportedRoleArn', cdk.Fn.importValue('DemoIamRoleArn'));
 
     //Create a security group
     const demoSecurityGroup = new ec2.SecurityGroup(this, 'DemoSecurityGroup', {
@@ -31,6 +36,7 @@ export class WebserverStack extends cdk.Stack {
     const demoInstance = new ec2.Instance(this, 'DemoInstanceLID', {
       vpc: vpcFromSSM,
       instanceType: new ec2.InstanceType('t2.micro'),
+      role: importedRoleArn,
       machineImage: new ec2.AmazonLinuxImage({
         generation: ec2.AmazonLinuxGeneration.AMAZON_LINUX_2,
         edition: ec2.AmazonLinuxEdition.STANDARD,
